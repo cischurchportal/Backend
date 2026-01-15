@@ -1,0 +1,53 @@
+[
+  {
+    "id": 1,
+    "name": "Rev. Dr. John Matthew",
+    "title": "Senior Pastor",
+    "image": "/blob/priests/priest1.jpg",
+    "bio": "Rev. Dr. John Matthew has been serving our church community for over 15 years with dedication and love.",
+    "ordination_year": 2005,
+    "specializations": [
+      "Biblical Studies",
+      "Pastoral Care",
+      "Youth Ministry"
+    ],
+    "contact_email": "pastor.john@allsaintschurch.org",
+    "is_active": true,
+    "display_order": 1,
+    "created_at": "2020-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": 2,
+    "name": "Rev. Sarah Williams",
+    "title": "Associate Pastor",
+    "image": "/blob/priests/priest2.jpg",
+    "bio": "Rev. Sarah Williams brings fresh energy and passion to our worship services and community outreach programs.",
+    "ordination_year": 2015,
+    "specializations": [
+      "Community Outreach",
+      "Women's Ministry",
+      "Music Ministry"
+    ],
+    "contact_email": "pastor.sarah@allsaintschurch.org",
+    "is_active": true,
+    "display_order": 2,
+    "created_at": "2022-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "name": "nms",
+    "title": "nmsc",
+    "image": "",
+    "bio": "nmkdl",
+    "ordination_year": null,
+    "specializations": [
+      "k"
+    ],
+    "contact_email": "njlkn@njk",
+    "is_active": true,
+    "display_order": 3,
+    "id": 3,
+    "created_at": "2026-01-15T11:40:51.060876Z"
+  }
+]

@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "member_id": 1,
+    "amount": 100.00,
+    "donation_type": "tithe",
+    "payment_method": "check",
+    "check_number": "1001",
+    "donation_date": "2024-01-07T00:00:00Z",
+    "fund": "general",
+    "notes": "Weekly tithe",
+    "is_anonymous": false,
+    "tax_deductible": true,
+    "created_at": "2024-01-07T10:00:00Z"
+  },
+  {
+    "id": 2,
+    "member_id": 2,
+    "amount": 50.00,
+    "donation_type": "offering",
+    "payment_method": "cash",
+    "check_number": null,
+    "donation_date": "2024-01-07T00:00:00Z",
+    "fund": "missions",
+    "notes": "Special missions offering",
+    "is_anonymous": false,
+    "tax_deductible": true,
+    "created_at": "2024-01-07T10:00:00Z"
+  },
+  {
+    "id": 3,
+    "member_id": null,
+    "amount": 25.00,
+    "donation_type": "offering",
+    "payment_method": "cash",
+    "check_number": null,
+    "donation_date": "2024-01-07T00:00:00Z",
+    "fund": "building",
+    "notes": "Anonymous building fund donation",
+    "is_anonymous": true,
+    "tax_deductible": true,
+    "created_at": "2024-01-07T10:00:00Z"
+  }
+]

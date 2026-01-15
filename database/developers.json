@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "name": "John Doe",
+    "role": "Full Stack Developer",
+    "image": "/blob/images/df529c7c552a4cccafb4b7fcb8eee45c.jpg",
+    "order": 1,
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2026-01-15T11:48:37.817581Z"
+  },
+  {
+    "id": 2,
+    "name": "Jane Smith",
+    "role": "Frontend Developer",
+    "image": "/blob/developers/developer2.jpg",
+    "order": 2,
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  }
+]

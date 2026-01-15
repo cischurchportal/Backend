@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "service_name": "Sunday Morning Worship",
+    "day_of_week": "Sunday",
+    "time": "09:00",
+    "duration_minutes": 90,
+    "preacher": "Rev. Dr. John Matthew",
+    "service_type": "worship",
+    "language": "English",
+    "location": "Main Sanctuary",
+    "description": "Traditional worship service with hymns, prayers, and biblical preaching.",
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": 2,
+    "service_name": "Sunday Evening Service",
+    "day_of_week": "Sunday",
+    "time": "18:00",
+    "duration_minutes": 60,
+    "preacher": "Rev. Sarah Williams",
+    "service_type": "worship",
+    "language": "English",
+    "location": "Main Sanctuary",
+    "description": "Contemporary worship with modern songs and interactive prayers.",
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": 3,
+    "service_name": "Wednesday Bible Study",
+    "day_of_week": "Wednesday",
+    "time": "19:00",
+    "duration_minutes": 90,
+    "preacher": "Rev. Dr. John Matthew",
+    "service_type": "bible_study",
+    "language": "English",
+    "location": "Fellowship Hall",
+    "description": "In-depth Bible study with discussion and fellowship.",
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  },
+  {
+    "id": 4,
+    "service_name": "Friday Prayer Meeting",
+    "day_of_week": "Friday",
+    "time": "19:30",
+    "duration_minutes": 60,
+    "preacher": "Rev. Sarah Williams",
+    "service_type": "prayer",
+    "language": "English",
+    "location": "Prayer Room",
+    "description": "Intercessory prayer meeting for church and community needs.",
+    "is_active": true,
+    "created_at": "2024-01-01T00:00:00Z",
+    "updated_at": "2024-01-01T00:00:00Z"
+  }
+]
