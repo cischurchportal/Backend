@@ -86,35 +86,42 @@ async def upload_media_file(
     description: Optional[str] = Form(None),
     media_type: str = Form(...)
 ):
-    """Upload media file to carousel"""
+    """Upload media file to carousel (images only - videos not supported on R2)"""
     try:
+        # Only images are supported on R2
+        if media_type != "image":
+            raise ValueError("Only image files are supported. Videos are not stored on R2.")
+        
         # Validate file type
-        if media_type == "image" and not file.content_type.startswith("image/"):
+        if not file.content_type.startswith("image/"):
             raise ValueError("Invalid image file type")
-        elif media_type == "video" and not file.content_type.startswith("video/"):
-            raise ValueError("Invalid video file type")
         
         # Read file data
         file_data = await file.read()
         
-        # Upload file and get path
-        file_path = carousel_service.upload_media_file(file_data, file.filename, carousel_id)
+        # Upload file to R2 and get URL
+        file_url = carousel_service.upload_media_file(
+            file_data, 
+            file.filename, 
+            carousel_id,
+            content_type=file.content_type
+        )
         
-        # Create media record
+        # Create media record with R2 URL
         media_data = {
             "media_type": media_type,
-            "file_path": file_path,
+            "file_path": file_url,  # Store R2 URL in file_path field for consistency
             "title": title,
             "description": description or ""
         }
         
         media = carousel_service.add_media_to_carousel(carousel_id, media_data)
-        return success_response(data=media, message="Media uploaded successfully", status_code=201)
+        return success_response(data=media, message="Media uploaded successfully to R2", status_code=201)
         
     except ValueError as e:
         raise error_response(str(e), status_code=400)
     except Exception as e:
-        raise error_response("Failed to upload media", status_code=500)
+        raise error_response(f"Failed to upload media: {str(e)}", status_code=500)
 
 @router.put("/media/{media_id}")
 async def update_media(media_id: int, updates: dict):

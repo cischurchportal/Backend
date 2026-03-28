@@ -1,6 +1,10 @@
 from typing import List, Optional, Dict, Any
 import os
 from app.repositories.carousel_repository import CarouselRepository
+from app.services.r2_storage_service import get_r2_service
+import logging
+
+logger = logging.getLogger(__name__)
 
 class CarouselService:
     def __init__(self):
@@ -94,38 +98,38 @@ class CarouselService:
             carousel['media'] = self.carousel_repo.get_carousel_media(carousel['id'])
         return carousels
     
-    def upload_media_file(self, file_data: bytes, filename: str, carousel_id: int) -> str:
-        """Upload media file to blob storage and return file path"""
-        # Create directory structure
+    def upload_media_file(self, file_data: bytes, filename: str, carousel_id: int, content_type: str = "image/jpeg") -> str:
+        """Upload media file to R2 storage and return file URL (images only)"""
+        # Validate carousel exists
         carousel = self.carousel_repo.get_carousel_by_id(carousel_id)
         if not carousel:
             raise ValueError("Carousel not found")
+        
+        # Determine file extension
+        file_ext = os.path.splitext(filename)[1].lower()
+        
+        # Only allow images (no videos on R2 as per requirements)
+        if file_ext not in ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg']:
+            raise ValueError("Only image files are supported. Videos are not stored on R2.")
         
         # Create safe directory name from carousel name
         safe_name = "".join(c for c in carousel['name'] if c.isalnum() or c in (' ', '-', '_')).rstrip()
         safe_name = safe_name.replace(' ', '_').lower()
         
-        # Determine file extension
-        file_ext = os.path.splitext(filename)[1].lower()
-        if file_ext not in ['.jpg', '.jpeg', '.png', '.gif', '.mp4', '.mov', '.avi']:
-            raise ValueError("Unsupported file type")
+        # Upload to R2 in carousels/{carousel_name} folder
+        r2_service = get_r2_service()
+        success, url, error = r2_service.upload_image(
+            file_content=file_data,
+            filename=filename,
+            folder=f"carousels/{safe_name}",
+            content_type=content_type
+        )
         
-        # Create directory path
-        media_type = 'videos' if file_ext in ['.mp4', '.mov', '.avi'] else 'images'
-        dir_path = f"../blob/carousels/{safe_name}"
-        os.makedirs(dir_path, exist_ok=True)
+        if not success:
+            raise Exception(error or "Failed to upload to R2")
         
-        # Generate unique filename
-        import uuid
-        unique_filename = f"{uuid.uuid4().hex}{file_ext}"
-        file_path = f"{dir_path}/{unique_filename}"
-        
-        # Save file
-        with open(file_path, 'wb') as f:
-            f.write(file_data)
-        
-        # Return relative path for database storage
-        return f"/blob/carousels/{safe_name}/{unique_filename}"
+        logger.info(f"Uploaded carousel media to R2: {url}")
+        return url
     
     def get_media_statistics(self) -> Dict[str, Any]:
         """Get media statistics"""
@@ -136,7 +140,7 @@ class CarouselService:
             'total_carousels': len(self.carousel_repo.get_active_carousels()),
             'total_media': len(active_media),
             'images': len([m for m in active_media if m.get('media_type') == 'image']),
-            'videos': len([m for m in active_media if m.get('media_type') == 'video']),
+            'videos': 0,  # Videos not supported on R2
             'media_by_category': {}
         }
         
