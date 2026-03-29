@@ -28,3 +28,6 @@ pymssql==2.2.11
 
 # SQLAlchemy ORM
 SQLAlchemy==2.0.30
+
+# Async HTTP client for external Bible API
+httpx==0.27.0

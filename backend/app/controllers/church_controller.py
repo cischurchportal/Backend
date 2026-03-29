@@ -9,7 +9,7 @@ church_service = ChurchService()
 @router.get("/home")
 async def get_home_page_data():
     """Get all data needed for the home page"""
-    data = church_service.get_home_page_data()
+    data = await church_service.get_home_page_data()
     return success_response(data=data, message="Home page data retrieved successfully")
 
 @router.get("/settings")
@@ -74,11 +74,10 @@ async def delete_priest(priest_id: int):
 
 @router.get("/verse-of-day")
 async def get_verse_of_day(date: Optional[str] = Query(None, description="Date in YYYY-MM-DD format")):
-    """Get verse of the day"""
-    verse = church_service.get_verse_of_day(date)
+    """Get verse of the day — auto-generates from external API if none exists for today"""
+    verse = await church_service.get_or_auto_create_verse_of_day(date)
     if not verse:
         return success_response(data=None, message="No verse found for the specified date")
-    
     return success_response(data=verse, message="Verse of the day retrieved successfully")
 
 @router.post("/verse-of-day")
