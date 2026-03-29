@@ -26,7 +26,7 @@ async def upload_file(file: UploadFile = File(...)):
         
         # Upload to R2
         r2_service = get_r2_service()
-        success, url, error = r2_service.upload_image(
+        success, url, error = await r2_service.upload_image(
             file_content=content,
             filename=file.filename,
             folder="images",
@@ -71,7 +71,7 @@ async def upload_priest_image(
         
         # Upload to R2 in priests folder
         r2_service = get_r2_service()
-        success, url, error = r2_service.upload_image(
+        success, url, error = await r2_service.upload_image(
             file_content=content,
             filename=file.filename,
             folder="priests",
@@ -115,7 +115,7 @@ async def upload_church_logo(
         
         # Upload to R2 in logos folder
         r2_service = get_r2_service()
-        success, url, error = r2_service.upload_image(
+        success, url, error = await r2_service.upload_image(
             file_content=content,
             filename=file.filename,
             folder="logos",

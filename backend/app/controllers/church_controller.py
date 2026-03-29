@@ -14,11 +14,8 @@ async def get_home_page_data():
 
 @router.get("/settings")
 async def get_church_settings():
-    """Get church settings"""
+    """Get church settings (auto-creates default if not exists)"""
     settings = church_service.get_church_settings()
-    if not settings:
-        raise not_found_response("Church settings")
-    
     return success_response(data=settings, message="Church settings retrieved successfully")
 
 @router.put("/settings")
@@ -26,9 +23,6 @@ async def update_church_settings(updates: dict):
     """Update church settings"""
     try:
         settings = church_service.update_church_settings(updates)
-        if not settings:
-            raise not_found_response("Church settings")
-        
         return success_response(data=settings, message="Church settings updated successfully")
     except ValueError as e:
         raise error_response(str(e), status_code=400)
@@ -191,6 +185,12 @@ async def get_upcoming_celebrations(days: int = Query(7, description="Number of 
     """Get upcoming celebrations"""
     celebrations = church_service.get_upcoming_celebrations(days)
     return success_response(data={"celebrations": celebrations}, message="Upcoming celebrations retrieved successfully")
+
+@router.get("/celebrations")
+async def get_all_celebrations():
+    """Get all celebrations (for admin management)"""
+    celebrations = church_service.get_all_celebrations()
+    return success_response(data={"celebrations": celebrations}, message="All celebrations retrieved successfully")
 
 @router.post("/celebrations")
 async def create_celebration(celebration_data: dict):

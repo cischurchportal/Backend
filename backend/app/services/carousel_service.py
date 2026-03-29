@@ -98,36 +98,30 @@ class CarouselService:
             carousel['media'] = self.carousel_repo.get_carousel_media(carousel['id'])
         return carousels
     
-    def upload_media_file(self, file_data: bytes, filename: str, carousel_id: int, content_type: str = "image/jpeg") -> str:
+    async def upload_media_file(self, file_data: bytes, filename: str, carousel_id: int, content_type: str = "image/jpeg") -> str:
         """Upload media file to R2 storage and return file URL (images only)"""
-        # Validate carousel exists
         carousel = self.carousel_repo.get_carousel_by_id(carousel_id)
         if not carousel:
             raise ValueError("Carousel not found")
-        
-        # Determine file extension
+
         file_ext = os.path.splitext(filename)[1].lower()
-        
-        # Only allow images (no videos on R2 as per requirements)
         if file_ext not in ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg']:
             raise ValueError("Only image files are supported. Videos are not stored on R2.")
-        
-        # Create safe directory name from carousel name
+
         safe_name = "".join(c for c in carousel['name'] if c.isalnum() or c in (' ', '-', '_')).rstrip()
         safe_name = safe_name.replace(' ', '_').lower()
-        
-        # Upload to R2 in carousels/{carousel_name} folder
+
         r2_service = get_r2_service()
-        success, url, error = r2_service.upload_image(
+        success, url, error = await r2_service.upload_image(
             file_content=file_data,
             filename=filename,
             folder=f"carousels/{safe_name}",
             content_type=content_type
         )
-        
+
         if not success:
             raise Exception(error or "Failed to upload to R2")
-        
+
         logger.info(f"Uploaded carousel media to R2: {url}")
         return url
     
@@ -140,7 +134,7 @@ class CarouselService:
             'total_carousels': len(self.carousel_repo.get_active_carousels()),
             'total_media': len(active_media),
             'images': len([m for m in active_media if m.get('media_type') == 'image']),
-            'videos': 0,  # Videos not supported on R2
+            'videos': len([m for m in active_media if m.get('media_type') == 'video']),
             'media_by_category': {}
         }
         

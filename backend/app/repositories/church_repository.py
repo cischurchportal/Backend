@@ -10,13 +10,24 @@ class ChurchRepository(BaseRepository):
 
     def get_church_settings(self) -> Optional[Dict[str, Any]]:
         settings = self.get_all("church_settings")
-        return settings[0] if settings else None
+        if settings:
+            return settings[0]
+        # Auto-seed default church settings
+        default = {
+            "church_name": "CSI All Saints Church",
+            "address": "",
+            "phone": "",
+            "email": "",
+            "website": "",
+            "established_year": None,
+            "diocese_logo": None,
+            "church_logo": None
+        }
+        return self.insert("church_settings", default)
 
     def update_church_settings(self, updates: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-        settings = self.get_church_settings()
-        if settings:
-            return self.update("church_settings", settings["id"], updates)
-        return None
+        settings = self.get_church_settings()  # ensures record exists
+        return self.update("church_settings", settings["id"], updates)
 
     # ---- Priests ----
 
@@ -93,6 +104,10 @@ class ChurchRepository(BaseRepository):
         return self.delete("service_timings", service_id)
 
     # ---- Celebrations ----
+
+    def get_all_celebrations(self) -> List[Dict[str, Any]]:
+        all_c = self.get_all("celebrations")
+        return sorted(all_c, key=lambda x: x.get("date", ""), reverse=True)
 
     def get_today_celebrations(self, date: str) -> List[Dict[str, Any]]:
         celebrations = self.get_by_field("celebrations", "date", date)

@@ -2,8 +2,10 @@
 Base repository using SQLAlchemy ORM for Azure SQL Database.
 All repositories inherit from this class.
 """
+import json
 from typing import Any, Dict, List, Optional, Type, TypeVar
 from datetime import datetime
+from sqlalchemy import JSON as SA_JSON
 from sqlalchemy.orm import Session
 from app.db.session import get_session_factory
 from app.db.models import Base
@@ -18,8 +20,48 @@ def _row_to_dict(obj) -> Dict[str, Any]:
         val = getattr(obj, col.name)
         if isinstance(val, datetime):
             val = val.isoformat() + "Z"
+        # Deserialize JSON strings that pymssql returns as str
+        elif isinstance(val, str) and isinstance(col.type, SA_JSON):
+            try:
+                val = json.loads(val)
+            except (ValueError, TypeError):
+                pass
         d[col.name] = val
     return d
+
+
+def _sanitize_for_insert(model, data: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Prepare a data dict for INSERT/UPDATE:
+    - Strip keys not in the model
+    - Convert ISO datetime strings → datetime objects
+    - Serialize JSON columns (list/dict) → JSON strings (pymssql requirement)
+    """
+    clean = {}
+    for col in model.__table__.columns:
+        k = col.name
+        if k not in data:
+            continue
+        v = data[k]
+        col_type = type(col.type).__name__
+        # DateTime: convert ISO string → datetime object
+        if col_type in ("DateTime", "DATETIME") and isinstance(v, str):
+            try:
+                v = datetime.fromisoformat(v.rstrip("Z"))
+            except (ValueError, TypeError):
+                continue  # skip unparseable datetime values
+        # JSON columns: pymssql needs a serialized string, not a Python object
+        elif isinstance(col.type, SA_JSON):
+            if isinstance(v, (list, dict)):
+                v = json.dumps(v)
+            elif isinstance(v, str):
+                # validate it's valid JSON, normalise it
+                try:
+                    v = json.dumps(json.loads(v))
+                except (ValueError, TypeError):
+                    v = json.dumps([])
+        clean[k] = v
+    return clean
 
 
 class BaseRepository:
@@ -63,9 +105,11 @@ class BaseRepository:
         model = self._get_model_class(table_name)
         # Remove 'id' if None so DB auto-generates it
         data = {k: v for k, v in record.items() if not (k == "id" and v is None)}
-        # Strip keys not in the model
-        valid_cols = {c.name for c in model.__table__.columns}
-        data = {k: v for k, v in data.items() if k in valid_cols}
+        # Sanitize types and strip unknown columns
+        data = _sanitize_for_insert(model, data)
+        # Never manually set created_at/updated_at — let DB defaults handle them
+        data.pop("created_at", None)
+        data.pop("updated_at", None)
 
         with self._session() as db:
             obj = model(**data)
@@ -76,8 +120,12 @@ class BaseRepository:
 
     def update(self, table_name: str, record_id: int, updates: Dict[str, Any]) -> Optional[Dict[str, Any]]:
         model = self._get_model_class(table_name)
-        valid_cols = {c.name for c in model.__table__.columns}
-        updates = {k: v for k, v in updates.items() if k in valid_cols and k != "id"}
+        valid_col_names = {c.name for c in model.__table__.columns}
+        # Sanitize types
+        updates = _sanitize_for_insert(model, {k: v for k, v in updates.items() if k != "id"})
+        # Never manually set timestamps — base handles updated_at below
+        updates.pop("created_at", None)
+        updates.pop("updated_at", None)
 
         with self._session() as db:
             obj = db.query(model).filter(model.id == record_id).first()
@@ -85,7 +133,7 @@ class BaseRepository:
                 return None
             for key, val in updates.items():
                 setattr(obj, key, val)
-            if "updated_at" in valid_cols:
+            if "updated_at" in valid_col_names:
                 obj.updated_at = datetime.utcnow()
             db.commit()
             db.refresh(obj)

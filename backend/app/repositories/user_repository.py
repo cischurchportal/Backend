@@ -42,7 +42,7 @@ class UserRepository(BaseRepository):
         from app.utils.security import verify_password
         if not verify_password(password, stored_password):
             return None
-        self.update_user(user["id"], {"last_login": datetime.utcnow().isoformat() + "Z"})
+        self.update_user(user["id"], {"last_login": datetime.utcnow()})
         return user
 
     def get_admins(self):

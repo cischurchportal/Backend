@@ -117,6 +117,10 @@ class ChurchService:
         """Delete service timing"""
         return self.church_repo.delete_service_timing(service_id)
     
+    def get_all_celebrations(self) -> List[Dict[str, Any]]:
+        """Get all celebrations (for admin)"""
+        return self.church_repo.get_all_celebrations()
+
     def get_today_celebrations(self) -> List[Dict[str, Any]]:
         """Get today's celebrations"""
         today = date.today().isoformat()
